@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
 import dns from 'dns';
 
-// Fix Windows / local ISP DNS SRV lookup failure for mongodb+srv://
+// Fix Windows / local ISP DNS SRV lookup & IPv6 routing failure for mongodb+srv://
 try {
+  dns.setDefaultResultOrder?.('ipv4first');
   dns.setServers(['8.8.8.8', '1.1.1.1']);
 } catch (e) {
   // Ignore if custom DNS fails
@@ -17,6 +18,7 @@ export const connectDB = async () => {
 
     const conn = await mongoose.connect(mongoURI, {
       serverSelectionTimeoutMS: 5000,
+      family: 4,
     });
     console.log(`[MongoDB Atlas] Connected successfully to host: ${conn.connection.host}`);
   } catch (error) {
